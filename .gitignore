@@ -1,0 +1,7 @@
+__pycache__/
+bin/
+*.pyc
+*.pyo
+/.buildozer/
+/.venv/
+/temp/

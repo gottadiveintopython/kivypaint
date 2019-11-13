@@ -1,0 +1,16 @@
+[[source]]
+name = "pypi"
+verify_ssl = true
+url = "https://pypi.org/simple"
+
+[packages]
+cython = "==0.29.9"
+pillow = "*"
+trio = "*"
+"be3db00" = {editable = true, path = "./../kivy"}
+attrs = "*"
+
+[dev-packages]
+
+[requires]
+python_version = "3.7"
