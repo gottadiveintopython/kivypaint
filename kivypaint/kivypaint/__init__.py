@@ -192,7 +192,10 @@ class PaintCanvas(Factory.StencilView, Factory.Widget):
             sub_group.add(translate)
         if ctx.do_anim_rotate:
             rotate = Rotate(origin=center, axis=(0, 0, 1))
-            random_animation.rotate().start(rotate)
+            if random_boolean():
+                random_animation.rotate().start(rotate)
+            else:
+                ctx.nursery.start_soon(_rotate_forever, rotate)
             sub_group.add(rotate)
         if ctx.do_anim_scale:
             scale = Scale(origin=center)
@@ -200,3 +203,11 @@ class PaintCanvas(Factory.StencilView, Factory.Widget):
             sub_group.add(scale)
         inst_group.insert(0, sub_group)
         inst_group.add(PopMatrix())
+
+
+async def _rotate_forever(rotate):
+    start = trio.current_time()
+    while True:
+        await trio.sleep(0)
+        diff = trio.current_time() - start
+        rotate.angle = diff * 30
