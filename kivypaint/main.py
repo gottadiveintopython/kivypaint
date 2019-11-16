@@ -15,7 +15,7 @@ class PaintApp(App):
 
     def build(self):
         from kivypaint import Paint
-        return Paint()
+        return Paint(nursery=self.nursery)
 
     async def root_task(self):
         async with trio.open_nursery() as nursery:

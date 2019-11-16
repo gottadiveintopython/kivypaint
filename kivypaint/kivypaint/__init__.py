@@ -1,9 +1,11 @@
 __all__ = ('Paint', )
 
+import trio
 from kivy.properties import ObjectProperty, StringProperty, BooleanProperty, NumericProperty
 from kivy.event import EventDispatcher
 from kivy.factory import Factory
 from kivy.lang import Builder
+from kivy.clock import Clock
 
 from . import theme
 from .canvas_operations import operations
@@ -31,9 +33,22 @@ Builder.load_string('''
     BoxLayout:
         id: main
         spacing: 2
-        PaintToolbox:
-            id: toolbox
-            ctx: root.ctx
+        BoxLayout:
+            orientation: 'vertical'
+            size_hint_x: None
+            width: toolbox.width
+            PaintToolbox:
+                id: toolbox
+                ctx: root.ctx
+            BoxLayout:
+                orientation: 'vertical'
+                Button:
+                    font_name: 'Icon'
+                    text: md_icons['delete-outline']
+                    font_size: theme.icon_size
+                    size_hint: None, None
+                    size: self.texture_size
+                    on_press: root.reset()
         PaintCanvas:
             id: canvas
             ctx: root.ctx
@@ -74,6 +89,7 @@ Builder.load_string('''
 ''')
 
 class Context(EventDispatcher):
+    nursery = ObjectProperty()
     operation = ObjectProperty(None, allownone=True, rebind=True)
     line_width = StringProperty(2)
     freehand_precision = NumericProperty(20)
@@ -104,10 +120,26 @@ class Context(EventDispatcher):
 class Paint(Factory.BoxLayout):
     ctx = ObjectProperty()
 
-    def __init__(self, **kwargs):
+    def __init__(self, nursery, **kwargs):
         if 'ctx' not in kwargs:
             kwargs['ctx'] = Context()
         super().__init__(**kwargs)
+        self._parent_nursery = nursery
+        Clock.schedule_once(self.reset)
+
+    def reset(self, *args):
+        self._reset_nursery()
+        self.ids.canvas.canvas.clear()
+
+    def _reset_nursery(self):
+        nursery = self.ctx.nursery
+        if nursery is not None:
+            nursery.cancel_scope.cancel()
+        async def root_task(ctx):
+            async with trio.open_nursery() as nursery:
+                ctx.nursery = nursery
+                nursery.start_soon(trio.sleep_forever)
+        self._parent_nursery.start_soon(root_task, self.ctx)
 
 
 class PaintToolbox(Factory.GridLayout):
