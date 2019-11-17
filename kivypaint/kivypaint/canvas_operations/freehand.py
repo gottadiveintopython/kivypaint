@@ -2,7 +2,7 @@ __all__ = ('operations', )
 
 from kivy.graphics import Line, Color, InstructionGroup
 from kivypaint.async_event import async_event
-from . import Operation, BoundingBox
+from . import Operation, BoundingBox, touch_context
 
 
 async def freehand(widget, touch, ctx):
@@ -18,11 +18,13 @@ async def freehand(widget, touch, ctx):
     def on_touch_move(w, t):
         nonlocal last_x, last_y
         if t is touch and t.grab_current is w:
-            if abs(last_x - t.x) + abs(last_y - t.y) > precision:
-                points = line.points
-                points.extend(t.pos)
-                line.points = points
-                last_x, last_y = t.pos
+            with touch_context(t):
+                t.apply_transform_2d(w.to_local)
+                if abs(last_x - t.x) + abs(last_y - t.y) > precision:
+                    points = line.points
+                    points.extend(t.pos)
+                    line.points = points
+                    last_x, last_y = t.pos
             return True
     widget.bind(on_touch_move=on_touch_move)
     await async_event(

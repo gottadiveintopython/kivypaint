@@ -25,7 +25,7 @@ async def polyline(widget, touch, ctx, *, precision=20):
             # line.points = p
             return True
     def on_mouse_pos(window, mouse_pos):
-        x, y = widget.to_widget(*mouse_pos)
+        x, y = to_widget(*mouse_pos)
         points = line.points
         points[-1] = y
         points[-2] = x

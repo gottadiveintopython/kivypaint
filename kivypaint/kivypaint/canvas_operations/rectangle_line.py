@@ -24,7 +24,9 @@ async def _rectangle_based(widget, touch, ctx, *, shape_name):
     touch.grab(widget)
     def on_touch_move(w, t):
         if t is touch and t.grab_current is w:
-            update_line(line, touch)
+            with touch_context(t):
+                t.apply_transform_2d(w.to_local)
+                update_line(line, touch)
             return True
     widget.bind(on_touch_move=on_touch_move)
     await async_event(

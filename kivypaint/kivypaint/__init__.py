@@ -84,7 +84,7 @@ Builder.load_string('''
         Color:
             rgba: theme.canvas_color
         Rectangle:
-            pos: self.pos
+            pos: self.to_local(*self.pos)
             size: self.size
 ''')
 
@@ -161,7 +161,7 @@ class PaintToolboxItem(Factory.ToggleButtonBehavior, Factory.Label):
     operation = ObjectProperty()
 
 
-# class PaintCanvas(Factory.Widget):
+# class PaintCanvas(Factory.RelativeLayout):
 class PaintCanvas(Factory.StencilView, Factory.Widget):
     ctx = ObjectProperty()
 
