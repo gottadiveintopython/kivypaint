@@ -6,6 +6,7 @@ from kivy.event import EventDispatcher
 from kivy.factory import Factory
 from kivy.lang import Builder
 from kivy.clock import Clock
+from .async_animation import async_animation
 
 from . import theme
 from .canvas_operations import operations
@@ -188,26 +189,85 @@ class PaintCanvas(Factory.StencilView, Factory.Widget):
         sub_group.add(PushMatrix())
         if ctx.do_anim_translate:
             translate = Translate()
-            random_animation.translate().start(translate)
+            ctx.nursery.start_soon(RandomAnimation.translate, translate)
             sub_group.add(translate)
         if ctx.do_anim_rotate:
             rotate = Rotate(origin=center, axis=(0, 0, 1))
             if random_boolean():
-                random_animation.rotate().start(rotate)
+                ctx.nursery.start_soon(RandomAnimation.rotate, rotate)
             else:
-                ctx.nursery.start_soon(_rotate_forever, rotate)
+                ctx.nursery.start_soon(RandomAnimation.rotate2, rotate)
             sub_group.add(rotate)
         if ctx.do_anim_scale:
             scale = Scale(origin=center)
-            random_animation.scale().start(scale)
+            ctx.nursery.start_soon(RandomAnimation.scale, scale)
             sub_group.add(scale)
         inst_group.insert(0, sub_group)
         inst_group.add(PopMatrix())
 
 
-async def _rotate_forever(rotate):
-    start = trio.current_time()
-    while True:
-        await trio.sleep(0)
-        diff = trio.current_time() - start
-        rotate.angle = diff * 30
+class RandomAnimation:
+    @staticmethod
+    async def scale(target):
+        from random import uniform
+        d = uniform(.2, 1)
+        while True:
+            await async_animation(
+                target,
+                x=uniform(.8, .9),
+                y=uniform(.8, .9),
+                t='in_quart',
+                d=d,
+            )
+            await async_animation(
+                target,
+                x=uniform(1.1, 1.2),
+                y=uniform(1.1, 1.2),
+                t='out_quart',
+                d=d,
+            )
+
+    @staticmethod
+    async def rotate(target):
+        from random import uniform
+        d = uniform(1, 3)
+        while True:
+            await async_animation(
+                target,
+                angle=uniform(-240, -10),
+                t='in_out_quint',
+                d=d,
+            )
+            await async_animation(
+                target,
+                angle=uniform(10, 240),
+                t='in_out_quint',
+                d=d,
+            )
+
+    @staticmethod
+    async def rotate2(target):
+        start = trio.current_time()
+        while True:
+            await trio.sleep(0)
+            diff = trio.current_time() - start
+            target.angle = diff * 30
+
+    @staticmethod
+    async def translate(target):
+        from random import uniform
+        while True:
+            await async_animation(
+                target,
+                x=uniform(-100, 100),
+                y=uniform(-100, 100),
+                t='in_out_sine',
+                d=uniform(1, 4),
+            )
+            await async_animation(
+                target,
+                x=uniform(-100, 100),
+                y=uniform(-100, 100),
+                t='in_out_sine',
+                d=uniform(1, 4),
+            )
