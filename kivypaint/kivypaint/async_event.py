@@ -8,7 +8,6 @@ Parameter = namedtuple('Parameter', ('args', 'kwargs'))
 async def async_event(ed, name, *, filter=None, return_value=None):
     def _callback(*args, **kwargs):
         nonlocal parameter
-        nonlocal bind_id
         if (filter is not None) and not filter(*args, **kwargs):
             return
         parameter = Parameter(args, kwargs, )

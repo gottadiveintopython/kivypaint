@@ -120,7 +120,7 @@ class Context(EventDispatcher):
 class Paint(Factory.BoxLayout):
     ctx = ObjectProperty()
 
-    def __init__(self, nursery, **kwargs):
+    def __init__(self, *, nursery, **kwargs):
         if 'ctx' not in kwargs:
             kwargs['ctx'] = Context()
         super().__init__(**kwargs)
