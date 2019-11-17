@@ -187,20 +187,21 @@ class PaintCanvas(Factory.StencilView, Factory.Widget):
         center = ((bbox.x + bbox.right) / 2, (bbox.y + bbox.top) / 2, )
         sub_group = InstructionGroup()
         sub_group.add(PushMatrix())
+        start_soon = ctx.nursery.start_soon
         if ctx.do_anim_translate:
             translate = Translate()
-            ctx.nursery.start_soon(RandomAnimation.translate, translate)
+            start_soon(RandomAnimation.translate, translate)
             sub_group.add(translate)
         if ctx.do_anim_rotate:
             rotate = Rotate(origin=center, axis=(0, 0, 1))
             if random_boolean():
-                ctx.nursery.start_soon(RandomAnimation.rotate, rotate)
+                start_soon(RandomAnimation.rotate, rotate)
             else:
-                ctx.nursery.start_soon(RandomAnimation.rotate2, rotate)
+                start_soon(RandomAnimation.rotate2, rotate)
             sub_group.add(rotate)
         if ctx.do_anim_scale:
             scale = Scale(origin=center)
-            ctx.nursery.start_soon(RandomAnimation.scale, scale)
+            start_soon(RandomAnimation.scale, scale)
             sub_group.add(scale)
         inst_group.insert(0, sub_group)
         inst_group.add(PopMatrix())

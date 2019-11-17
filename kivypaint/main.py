@@ -1,6 +1,6 @@
 from kivy.config import Config
 Config.set('input', 'mouse', 'mouse,disable_multitouch')
-Config.set('kivy', 'log_level', 'debug')
+# Config.set('kivy', 'log_level', 'debug')
 import kivy
 kivy.require('2.0.0')
 # from kivy.utils import platform
