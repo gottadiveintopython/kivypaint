@@ -1,7 +1,7 @@
 __all__ = ('Paint', )
 
 import trio
-from kivy.properties import ObjectProperty, StringProperty, BooleanProperty, NumericProperty
+from kivy.properties import ObjectProperty, BooleanProperty, NumericProperty
 from kivy.event import EventDispatcher
 from kivy.factory import Factory
 from kivy.lang import Builder
@@ -91,7 +91,7 @@ Builder.load_string('''
 class Context(EventDispatcher):
     nursery = ObjectProperty()
     operation = ObjectProperty(None, allownone=True, rebind=True)
-    line_width = StringProperty(2)
+    line_width = NumericProperty(2)
     freehand_precision = NumericProperty(20)
 
     @property
