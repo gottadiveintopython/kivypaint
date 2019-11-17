@@ -167,10 +167,9 @@ class PaintCanvas(Factory.StencilView, Factory.Widget):
 
     def on_touch_down(self, touch):
         if self.collide_point(*touch.opos):
-            if self.ctx.operation is not None:
-                from kivy.app import App
-                app = App.get_running_app()
-                app.nursery.start_soon(self.canvas_operation, touch)
+            ctx = self.ctx
+            if ctx.operation is not None:
+                ctx.nursery.start_soon(self.canvas_operation, touch)
 
     async def canvas_operation(self, touch):
         from kivy.graphics import(
