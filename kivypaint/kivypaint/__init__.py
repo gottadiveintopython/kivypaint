@@ -178,7 +178,6 @@ class PaintCanvas(Factory.StencilView, Factory.Widget):
             PushMatrix, PopMatrix, Translate, Rotate, Scale,
             InstructionGroup,
         )
-        from . import random_animation
         ctx = self.ctx
         inst_group, bbox = await ctx.operation.func(self, touch, ctx)
         if inst_group is None:
