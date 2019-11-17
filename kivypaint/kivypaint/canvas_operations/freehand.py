@@ -14,7 +14,6 @@ async def freehand(widget, touch, ctx):
     widget.canvas.add(inst_group)
     precision = ctx.freehand_precision
 
-    touch.grab(widget)
     def on_touch_move(w, t):
         nonlocal last_x, last_y
         if t is touch and t.grab_current is w:
@@ -26,13 +25,19 @@ async def freehand(widget, touch, ctx):
                     line.points = points
                     last_x, last_y = t.pos
             return True
-    widget.bind(on_touch_move=on_touch_move)
-    await async_event(
-        widget, 'on_touch_up',
-        filter=lambda w, t: t is touch and t.grab_current is w,
-        return_value=True)
-    widget.unbind(on_touch_move=on_touch_move)
-    touch.ungrab(widget)
+    try:
+        touch.grab(widget)
+        widget.bind(on_touch_move=on_touch_move)
+        await async_event(
+            widget, 'on_touch_up',
+            filter=lambda w, t: t is touch and t.grab_current is w,
+            return_value=True)
+    except:
+        widget.canvas.remove(inst_group)
+        raise
+    finally:
+        widget.unbind(on_touch_move=on_touch_move)
+        touch.ungrab(widget)
     x_list = line.points[::2]
     y_list = line.points[1::2]
     return (

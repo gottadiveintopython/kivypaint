@@ -30,14 +30,19 @@ async def polyline(widget, touch, ctx, *, precision=20):
         points[-1] = y
         points[-2] = x
         line.points = points
-    Window.bind(mouse_pos=on_mouse_pos)
-    widget.bind(on_touch_down=on_touch_down)
-    await async_event(
-        widget, 'on_touch_down',
-        filter=lambda w, t: t.button == 'right',
-        return_value=True)
-    widget.unbind(on_touch_down=on_touch_down)
-    Window.unbind(mouse_pos=on_mouse_pos)
+    try:
+        Window.bind(mouse_pos=on_mouse_pos)
+        widget.bind(on_touch_down=on_touch_down)
+        await async_event(
+            widget, 'on_touch_down',
+            filter=lambda w, t: t.button == 'right',
+            return_value=True)
+    except:
+        widget.canvas.remove(inst_group)
+        raise
+    finally:
+        widget.unbind(on_touch_down=on_touch_down)
+        Window.unbind(mouse_pos=on_mouse_pos)
     x_list = line.points[::2]
     y_list = line.points[1::2]
     return (

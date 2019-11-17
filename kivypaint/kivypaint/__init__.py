@@ -126,6 +126,7 @@ class Paint(Factory.BoxLayout):
         super().__init__(**kwargs)
         self._parent_nursery = nursery
         Clock.schedule_once(self.reset)
+        # Clock.schedule_interval(self.reset, 2)
 
     def reset(self, *args):
         self._reset_nursery()

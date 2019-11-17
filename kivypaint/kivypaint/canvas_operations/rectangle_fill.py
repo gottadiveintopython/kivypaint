@@ -27,20 +27,25 @@ async def _rectangle_based(widget, touch, ctx, *, shape_name):
         update_shape(shape, touch)
     widget.canvas.add(inst_group)
 
-    touch.grab(widget)
     def on_touch_move(w, t):
         if t is touch and t.grab_current is w:
             with touch_context(t):
                 touch.apply_transform_2d(w.to_local)
                 update_shape(shape, touch)
             return True
-    widget.bind(on_touch_move=on_touch_move)
-    await async_event(
-        widget, 'on_touch_up',
-        filter=lambda w, t: t is touch and t.grab_current is w,
-        return_value=True)
-    widget.unbind(on_touch_move=on_touch_move)
-    touch.ungrab(widget)
+    try:
+        touch.grab(widget)
+        widget.bind(on_touch_move=on_touch_move)
+        await async_event(
+            widget, 'on_touch_up',
+            filter=lambda w, t: t is touch and t.grab_current is w,
+            return_value=True)
+    except:
+        widget.canvas.remove(inst_group)
+        raise
+    finally:
+        widget.unbind(on_touch_move=on_touch_move)
+        touch.ungrab(widget)
     pos, size = shape.pos, shape.size
     return (
         inst_group,
